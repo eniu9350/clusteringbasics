@@ -2,5 +2,6 @@
 #define _CLUSTERINGBASICS_COMMON_
 
 typedef unsigned char uchar;
+typedef unsigned int uint;
 
 #endif
