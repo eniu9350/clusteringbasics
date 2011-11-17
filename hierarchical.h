@@ -1,0 +1,7 @@
+#ifndef _CLUSTERINGBASICS_HIERARCHICAL_
+#define _CLUSTERINGBASICS_HIERARCHICAL_
+
+#include "common.h"
+
+
+#endif
