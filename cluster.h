@@ -21,5 +21,9 @@ typedef struct cluster_list	{
 	cluster** plist;
 	int size;
 	int capcacity;
-}
+};
+
+cluster* create_cluster();
+int expand_cluster(cluster* c);
+
 #endif

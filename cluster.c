@@ -29,5 +29,3 @@ int expand_cluster(cluster* c)
 		return -1;
 	}
 }
-
-
