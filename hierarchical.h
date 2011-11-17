@@ -3,5 +3,9 @@
 
 #include "common.h"
 
+#include "cluster.h"
+#include "object.h"
+
+int hier_clustering(cluster_list* clist, object* objs, int nobj);
 
 #endif

@@ -2,6 +2,7 @@
 #define _CLUSTERINGBASICS_CLUSTER_
 
 #include "common.h"
+#include "object.h"
 
 #define NUM_INIT_CLUSTER_SIZE 50
 #define NUM_CLUSTER_SIZE_INCREMENT 50
@@ -12,18 +13,29 @@
 #define NUM_MAX_CLUSTERLIST_SIZE 500
 
 typedef struct cluster	{
-	uint* objs;
+	uint* objids;
 	int size;
 	int capacity;
+	
+	//env
+	object_list* all_objs;
 }cluster;
 
 typedef struct cluster_list	{
 	cluster** plist;
 	int size;
-	int capcacity;
-};
+	int capacity;
+}cluster_list;
 
-cluster* create_cluster();
+
+cluster* create_cluster(object_list* all_objs);
+int add_object(cluster* c, int objid);
 int expand_cluster(cluster* c);
+
+cluster_list* create_cluster_list();	
+int expand_cluster_list(cluster_list* cl);
+int add_cluster(cluster_list* cl, cluster* c);
+
+
 
 #endif

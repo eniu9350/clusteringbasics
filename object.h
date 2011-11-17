@@ -7,6 +7,7 @@
 #define NUM_OBJECT_ATTRIBUTES_DIMENSION 100
 
 typedef struct object	{
+	int id;
 	int atts[NUM_OBJECT_ATTRIBUTES_DIMENSION];
 }object;
 

@@ -28,10 +28,10 @@ int calc_sim_matrix(sim_matrix* s, cluster* c)
 	for(i=0;i<c->size;i++)	{
 		for(j=0;j<c->size;j++)	{
 			if(j==i)	{
-				s->matrix[c->objs[i]][c->objs[i]] = 1;
+				s->matrix[c->objids[i]][c->objids[i]] = 1;
 			}
 			else	{
-				s->matrix[c->objs[i]][c->objs[j]] = (*s->calc_fun)(c->objs+i, c->objs+j);
+				s->matrix[c->objids[i]][c->objids[j]] = (*s->calc_fun)(c->objids+i, c->objids+j);
 			}
 		}
 	}
