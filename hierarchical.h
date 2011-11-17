@@ -6,6 +6,6 @@
 #include "cluster.h"
 #include "object.h"
 
-int hier_clustering(cluster_list* clist, object* objs, int nobj);
+int hier_clustering(cluster_list* clist, object_list* objlist);
 
 #endif

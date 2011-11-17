@@ -27,6 +27,11 @@ typedef struct cluster_list	{
 	int capacity;
 }cluster_list;
 
+typedef struct cluster_list_list	{
+	cluster** plist;
+	int size;
+	int capacity;
+}cluster_list_list;
 
 cluster* create_cluster(object_list* all_objs);
 int add_object(cluster* c, int objid);

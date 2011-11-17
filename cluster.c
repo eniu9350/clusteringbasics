@@ -69,13 +69,13 @@ int expand_cluster_list(cluster_list* cl)
 	if(newcapacity>NUM_MAX_CLUSTERLIST_SIZE)	{
 		printf("expand cluster_list error, capacity limit exceeded!\n");
 		return -1;
-		}
+	}
 	else	{
 		newplist = (cluster**)realloc(cl->plist, newcapacity*sizeof(cluster*));
 		if(!newplist)	{
 			printf("expand cluster_list error, realloc failed!\n");
 			return -1;
-			}
+		}
 		cl->plist = newplist;
 		cl->capacity = newcapacity;
 	}

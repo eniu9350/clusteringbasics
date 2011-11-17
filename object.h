@@ -14,6 +14,7 @@ typedef struct object	{
 typedef struct object_list	{
 	object* list;
 	int size;
+	int capacity;
 }object_list;
 
 
