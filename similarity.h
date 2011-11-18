@@ -6,7 +6,7 @@
 #include "object.h"
 #include "cluster.h"
 
-typedef void* sim_calc_fun
+typedef void* sim_calc_fun;
 typedef double (*object_sim_calc_fun)(object* o1, object* o2);
 typedef double (*cluster_sim_calc_fun)(cluster* o1, cluster* o2);
 

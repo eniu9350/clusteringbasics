@@ -22,7 +22,7 @@ sim_matrix* create_sim_matrix(int dimension, sim_calc_fun calc_fun)
 	}
 }
 
-int calc_sim_matrix(sim_matrix* s, cluster* c)
+int calc_object_sim_matrix(sim_matrix* s, cluster* c)
 {
 	int i,j;
 	for(i=0;i<c->size;i++)	{
@@ -31,9 +31,25 @@ int calc_sim_matrix(sim_matrix* s, cluster* c)
 				s->matrix[c->objids[i]][c->objids[i]] = 1;
 			}
 			else	{
-				s->matrix[c->objids[i]][c->objids[j]] = (*s->calc_fun)(c->objids+i, c->objids+j);
+				s->matrix[c->objids[i]][c->objids[j]] = (*((object_sim_calc_fun)s->calc_fun))(c->objids+i, c->objids+j);
 			}
 		}
 	}
-
+}
+int calc_cluster_sim_matrix(sim_matrix* s, cluster_list* cl)
+{
+	int i,j;
+	/*
+	for(i=0;i<cl->size;i++)	{
+		for(j=0;j<cl->size;j++)	{
+			if(j==i)	{
+				s->matrix[c->objids[i]][c->objids[i]] = 1;
+			}
+			else	{
+				s->matrix[c->objids[i]][c->objids[j]] = (*(()s->calc_fun))(c->objids+i, c->objids+j);
+			}
+		}
+	}
+	*/
+	return 0;
 }

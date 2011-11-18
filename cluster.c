@@ -211,10 +211,10 @@ int remove_cluster(cluster_list* cl, int n)
 		return -1;
 	}
 	else {
-		toremove = cl->list[n];
+		toremove = cl->plist[n];
 
 		for(i=n;i<cl->size-1;i++)	{
-			cl->list[i] = cl->list[i+1];
+			cl->plist[i] = cl->plist[i+1];
 		}
 		cl->size--;
 
@@ -224,8 +224,6 @@ int remove_cluster(cluster_list* cl, int n)
 	return 0;
 }
 
-
-
 //---------------------------------------
 cluster_list_list* create_cluster_list_list()
 {
@@ -234,4 +232,42 @@ cluster_list_list* create_cluster_list_list()
 	cll->capacity = NUM_INIT_CLUSTERLISTLIST_SIZE;
 	cll->size = 0;
 	return cll;
+}
+
+
+int add_cluster_list(cluster_list_list* cll, cluster_list* cl)
+{
+	if(cll->size==cll->capacity)	{
+		if(expand_cluster_list_list(cll))	{
+			printf("add_cluster_list error, expand_cluster_list_list failed!\n");
+			return -1;
+			}
+			}
+	cll->plist[cll->size] = cl;
+	cll->size++;
+
+	return 0;
+}
+
+int expand_cluster_list_list(cluster_list_list* cll)
+{
+	int newcapacity = cll->size + NUM_CLUSTERLISTLIST_SIZE_INCREMENT;
+	cluster_list** newplist;
+	if(newcapacity>NUM_MAX_CLUSTERLISTLIST_SIZE)	{
+		printf("expand_cluster_list_list error, size max exceeded!\n");
+		return -1;
+	}
+	else	{
+		newplist = (cluster_list**)realloc(cll->plist, newcapacity*(sizeof(cluster_list*)));
+		if(!newplist)	{
+			printf("expand_cluster_list_list error, realloc failure!\n");
+			return -1;
+		}
+		else	{
+			cll->plist = newplist;
+			cll->capacity = newcapacity;
+		}
+	}
+
+	return 0;
 }

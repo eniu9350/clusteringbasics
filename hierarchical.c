@@ -6,6 +6,7 @@ int hier_clustering(cluster_list* clist, object_list* objs, cluster_sim_calc_fun
 	//int n;	//current cluster list size
 	cluster_list_list* result = create_cluster_list_list(); 
 	cluster_list* cl;	//current cluster list
+	cluster_list* cltosave;
 	cluster* c;	//temp
 	int rowmax;
 	int colmax;
@@ -15,12 +16,12 @@ int hier_clustering(cluster_list* clist, object_list* objs, cluster_sim_calc_fun
 
 	cl = create_cluster_list();
 	for(i=0;i<objs->size;i++)	{
-		c = create_cluster();
+		c = create_cluster(objs);
 		add_object(c, objs->list[i].id);
 		add_cluster(cl, c);
 	}
 
-	for(i=0;i<nobj-1;i++)	{
+	for(i=0;i<objs->size-1;i++)	{
 		//1. calc similarity
 		sim_matrix* simm = create_sim_matrix(cl->size, simfun);
 		for(j=1;j<cl->size;j++)	{
@@ -34,7 +35,7 @@ int hier_clustering(cluster_list* clist, object_list* objs, cluster_sim_calc_fun
 			}
 		}
 
-		//2. choose most similar and merge
+		//2. select and merge
 		rowmax = 0;
 		colmax = 1;
 		smax = simm->matrix[rowmax][colmax];
@@ -52,11 +53,8 @@ int hier_clustering(cluster_list* clist, object_list* objs, cluster_sim_calc_fun
 
 		remove_cluster(cl, k);
 
-
+		//save current cluster to result
+		cltosave = clone_cluster_list(cl);
+		add_cluster_list(result, cltosave);
 	}
-
-
-
-
-	//2. select and join
 }

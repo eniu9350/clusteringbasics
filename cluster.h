@@ -15,7 +15,7 @@
 #define NUM_INIT_CLUSTERLISTLIST_SIZE 10
 #define NUM_CLUSTERLISTLIST_SIZE_INCREMENT 10
 #define NUM_MAX_CLUSTERLISTLIST_SIZE 100
-typedef unit OBJID;
+typedef uint OBJID;
 
 typedef struct cluster	{
 	OBJID* objids;
@@ -54,7 +54,7 @@ int add_cluster(cluster_list* cl, cluster* c);
 int remove_cluster(cluster_list* cl, int n);
 
 cluster_list_list* create_cluster_list_list();	
-
-
+int add_cluster_list(cluster_list_list* cll, cluster_list* cl);
+int expand_cluster_list_list(cluster_list_list* cll);
 
 #endif
