@@ -13,6 +13,33 @@ cluster* create_cluster(object_list* all_objs)
 	return c;
 }
 
+
+cluster* create_cluster_by_capacity(object_list* all_objs, int initcapacity)
+{
+	cluster* c = (cluster*)malloc(sizeof(cluster));
+	c->size = 0;
+	c->objids = (uint*)malloc(initcapacity*sizeof(uint));
+	c->capacity = initcapacity;
+	c->all_objs = all_objs;
+	return c;
+}
+
+
+void destroy_cluster(cluster* c)
+{
+	free(c->objids);
+	free(c);
+}
+
+
+cluster* clone_cluster(cluster* c)
+{
+	cluster* cclone = create_cluster_by_capacity(c->all_objs, c->capacity);
+	memcpy((void*)cclone->objids, (void*)c->objids, c->size*sizeof(OBJID));
+	cclone->size = c->size;
+}
+
+
 int add_object(cluster* c, int objid)
 {
 	if(c->size>c->capacity)	{
@@ -28,8 +55,33 @@ int add_object(cluster* c, int objid)
 
 	c->objids[c->size]=objid;
 	c->size++;
+
 	return 0;
 }
+
+
+int remove_object(cluster* c, int n)
+{
+	int i;
+	if(c->size==0)	{
+		printf("remove_object error, size==0!\n");
+		return -1;
+	}
+	else	if(c->size-1<n) {
+		printf("remove_object error, c->size-1<n!\n");
+		return -1;
+	}
+	else	{
+		for(i=n;i<c->size-1;i++)	{
+			c->objids[i] = c->objids[i+1];
+		}
+		c->size--;
+		//mmm: can have capacity changed
+	}
+
+	return 0;
+}
+
 
 int expand_cluster(cluster* c)
 {
@@ -60,13 +112,15 @@ int merge_cluster(cluster* c, cluster* toadd)
 		if(expand_cluster(c))	{
 			printf("merge_cluster error, expand failed!\n");
 			return -1;
-			}
+		}
 	}
 	for(i=0;i<toadd->size;i++)	{
 		add_object(c, toadd->objids[i]);
 	}
 	return 0;
 }
+
+
 /* ----- struct cluster_list ----------------- */
 cluster_list* create_cluster_list()	
 {
@@ -77,6 +131,34 @@ cluster_list* create_cluster_list()
 	cl->capacity = NUM_INIT_CLUSTERLIST_SIZE;
 	return cl;	
 }
+
+
+cluster_list* create_cluster_list_by_capacity(int initcapacity)	
+{
+	cluster_list* cl;
+	cl = (cluster_list*)malloc(sizeof(cluster_list));
+	cl->size = 0;
+	cl->plist = (cluster**)malloc(initcapacity*sizeof(cluster*));
+	cl->capacity = initcapacity;
+	return cl;	
+}
+
+//destroy_cluster_list
+
+
+cluster_list* clone_cluster_list(cluster_list* cl)
+{
+	int i;
+	cluster_list* clclone;
+	cluster* c;
+	clclone = create_cluster_list_by_capacity(cl->capacity);
+	for(i=0;i<cl->size;i++)	{
+		c = clone_cluster(cl->plist[i]);
+		add_cluster(clclone, c);
+	}
+	return clclone;
+}
+
 
 int expand_cluster_list(cluster_list* cl)
 {
@@ -114,4 +196,42 @@ int add_cluster(cluster_list* cl, cluster* c)
 	cl->plist[cl->size] = c;
 	cl->size++;
 	return 0;
+}
+
+int remove_cluster(cluster_list* cl, int n)
+{
+	int i;
+	cluster* toremove;
+	if(cl->size==0)	{
+		printf("remove_cluster error, cl size == 0!\n");
+		return -1;
+	}
+	else if(cl->size-1<n)	{
+		printf("remove_cluster error, cl size-1 < n !\n");
+		return -1;
+	}
+	else {
+		toremove = cl->list[n];
+
+		for(i=n;i<cl->size-1;i++)	{
+			cl->list[i] = cl->list[i+1];
+		}
+		cl->size--;
+
+		destroy_cluster(toremove);
+	}
+
+	return 0;
+}
+
+
+
+//---------------------------------------
+cluster_list_list* create_cluster_list_list()
+{
+	cluster_list_list* cll = (cluster_list_list*)malloc(sizeof(cluster_list_list));
+	cll->plist = (cluster_list**)malloc(NUM_INIT_CLUSTERLISTLIST_SIZE*sizeof(cluster_list*));
+	cll->capacity = NUM_INIT_CLUSTERLISTLIST_SIZE;
+	cll->size = 0;
+	return cll;
 }
