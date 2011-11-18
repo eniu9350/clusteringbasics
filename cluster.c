@@ -20,7 +20,7 @@ int add_object(cluster* c, int objid)
 		return -1;
 	}
 	else if(c->size==c->capacity)	{
-		if(!expand_cluster(c))	{
+		if(expand_cluster(c))	{
 			printf("add_object error, expand failed!\n");
 			return -1;
 		}
@@ -51,6 +51,22 @@ int expand_cluster(cluster* c)
 	return 0;
 }
 
+
+int merge_cluster(cluster* c, cluster* toadd)
+{
+	int newsize = c->size + toadd->size;
+	int i;
+	if(newsize>c->capacity)	{
+		if(expand_cluster(c))	{
+			printf("merge_cluster error, expand failed!\n");
+			return -1;
+			}
+	}
+	for(i=0;i<toadd->size;i++)	{
+		add_object(c, toadd->objids[i]);
+	}
+	return 0;
+}
 /* ----- struct cluster_list ----------------- */
 cluster_list* create_cluster_list()	
 {
@@ -89,7 +105,7 @@ int add_cluster(cluster_list* cl, cluster* c)
 		return -1;
 	}
 	else if(c->size==c->capacity)	{
-		if(!expand_cluster_list(cl))	{
+		if(expand_cluster_list(cl))	{
 			printf("add_cluster error, expand failed!\n");
 			return -1;
 		}

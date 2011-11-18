@@ -36,11 +36,11 @@ typedef struct cluster_list_list	{
 cluster* create_cluster(object_list* all_objs);
 int add_object(cluster* c, int objid);
 int expand_cluster(cluster* c);
+int merge_cluster(cluster* c, cluster* toadd);
 
 cluster_list* create_cluster_list();	
 int expand_cluster_list(cluster_list* cl);
 int add_cluster(cluster_list* cl, cluster* c);
-
 
 
 #endif
