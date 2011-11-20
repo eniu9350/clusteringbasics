@@ -8,13 +8,14 @@
 
 typedef struct object	{
 	int id;
-	int atts[NUM_OBJECT_ATTRIBUTES_DIMENSION];
+	double* atts;
 }object;
 
 typedef struct object_list	{
 	object* list;
 	int size;
 	int capacity;
+	int dim;
 }object_list;
 
 

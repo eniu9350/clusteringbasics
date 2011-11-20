@@ -26,7 +26,7 @@ int hier_clustering(cluster_list* clist, object_list* objs, cluster_sim_calc_fun
 		sim_matrix* simm = create_sim_matrix(cl->size, simfun);
 		for(j=1;j<cl->size;j++)	{
 			for(k=0;k<j;k++)	{
-				simm->matrix[k][j] = (*((cluster_sim_calc_fun)simm->calc_fun))(cl->plist[k], cl->plist[j]);
+				simm->matrix[k][j] = (*((cluster_sim_calc_fun)simm->calc_fun))(cl->plist[k], cl->plist[j], 0);
 			}
 		}
 		for(j=1;j<cl->size;j++)	{	//the matrix is symmetric

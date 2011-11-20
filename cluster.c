@@ -224,7 +224,7 @@ int remove_cluster(cluster_list* cl, int n)
 	return 0;
 }
 
-//---------------------------------------
+/* ----- struct cluster_list_list ----------------- */
 cluster_list_list* create_cluster_list_list()
 {
 	cluster_list_list* cll = (cluster_list_list*)malloc(sizeof(cluster_list_list));
@@ -271,3 +271,5 @@ int expand_cluster_list_list(cluster_list_list* cll)
 
 	return 0;
 }
+
+
