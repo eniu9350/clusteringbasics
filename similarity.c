@@ -6,18 +6,21 @@ sim_matrix* create_sim_matrix(int size)
 {
 	sim_matrix* s;
 	int i,j;
+	printf("csm size=%d\n", size);
 	if(size>NUM_MAX_CLUSTER_SIZE)	{
 		printf("create_sim_matrix error, size exceed limit!\n");
 		return 0;
 	}
 	else	{
 		s = (sim_matrix*)malloc(sizeof(sim_matrix));
+		printf("csm step 1, sim_matrix size=%d\n", sizeof(sim_matrix));
 		s->size = size;
 		for(i=0;i<size;i++)	{
 			for(j=0;j<size;j++)	{
 				s->matrix[i][j] = -1;
 			}
 		}
+		printf("csm step 2\n");
 
 		return s;
 	}
@@ -46,28 +49,60 @@ sim_matrix* calc_obj_sim_matrix(object_space* space, cluster*c, object_sim_calc_
 	return simm;
 }
 
-//implement in hi.c yet
+//---------cluster sim MATRIX calc-----------------
 sim_matrix* calc_cluster_sim_matrix(object_space* space, cluster_list* cl, cluster_sim_calc_fun calc_fun)
 //int calc_cluster_sim_matrix(sim_matrix* s, cluster_list* cl)
 {
 	int j,k;
 	sim_matrix* simm;
+	printf("ccsm step 0\n");
 	simm = create_sim_matrix(cl->size);
+	printf("ccsm step 1\n");
 	for(j=1;j<cl->size;j++)	{
 		for(k=0;k<j;k++)	{
 			simm->matrix[k][j] = (*((cluster_sim_calc_fun)calc_fun))(space, cl->list[k], cl->list[j], 0);
 		}
 		simm->matrix[j][j] = 1;	//mmm: right?
 	}
+	printf("ccsm step 2\n");
 	for(j=1;j<cl->size;j++)	{	//the matrix is symmetric
 		for(k=0;k<j;k++)	{
 			simm->matrix[j][k] = simm->matrix[k][j];
 		}
 	}
+	printf("ccsm step 3\n");
 
 	return 0;
 }
 
+//---------find most similar clusters--------------
+int find_most_sim_cluster(object_space* space, cluster_list* cl, cluster_sim_calc_fun calc_fun, int* cid1, int* cid2)
+{
+	double maxsim;
+	double sim;
+	int i,j;
+	int imax, jmax;
+
+	maxsim = -999999;
+	imax = 0;
+	jmax = 1;
+
+	for(i=0;i<cl->size;i++)	{
+		for(j=0;j<i;j++)	{
+			sim =  (*calc_fun)(space, cl->list[i], cl->list[j], 0);
+			if(sim>maxsim)	{
+				maxsim = sim;
+				imax = i;
+				jmax = j;
+			}
+		}
+	}
+
+	*cid1 = imax;
+	*cid2 = jmax;
+
+	return 0;
+}
 
 //---------cluster sim metrics---------
 
@@ -129,10 +164,16 @@ double odis_euclidean(object_space* space, object* o1, object* o2)
 	double v1, v2;
 	object_att *att1, *att2;
 	for(i=0;i<space->dim;i++)	{
+		printf("oe, calc dim %d\n", i);
 		att1 = obj_get_att(o1, i+1);	//i+1 equals tid
 		att2 = obj_get_att(o2, i+1);	//i+1 equals tid
+		printf("att1 and att2 returned\n");
+		printf("att1=%d, att2=%d\n",att1, att2);
+
 		v1 = att1!=0?att1->v:0.0;
-		v2 = att2!=0?att1->v:0.0;
+		printf("v1=%f\n",v1);
+		v2 = att2!=0?att2->v:0.0;
+		printf("v2=%f\n",v2);
 		sum += (v1-v2)*(v1-v2);
 	}
 

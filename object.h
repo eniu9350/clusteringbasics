@@ -17,12 +17,13 @@ typedef struct _object_att	{
 alisttpl_struct(object_att);
 
 typedef struct _object	{
-	int id;
+	__u32 id;
 	//double* atts;
 	object_att_alist* atts;
 
 	//object_space* space;
 }object;
+object* obj_create_obj();
 
 
 object_att* obj_get_att(object* o, __u32 aid);

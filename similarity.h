@@ -22,6 +22,8 @@ typedef struct __sim_matrix	{
 	object_sim_calc_fun calc_fun;
 }obj_sim_matrix;
 */
+
+//mmm: should not use it as it is too big to hold!
 typedef struct __sim_matrix	{
 	double matrix[NUM_MAX_CLUSTER_SIZE][NUM_MAX_CLUSTER_SIZE];
 	int size;
@@ -33,6 +35,9 @@ int destroy_sim_matrix(sim_matrix* simm);
 sim_matrix* calc_obj_sim_matrix(object_space* space, cluster* c, object_sim_calc_fun calc_fun);
 //---------cluster sim MATRIX calc-----------------
 sim_matrix* calc_cluster_sim_matrix(object_space* space, cluster_list* cl, cluster_sim_calc_fun calc_fun);
+
+//---------find most similar clusters--------------
+int find_most_sim_cluster(object_space* space, cluster_list* cl, cluster_sim_calc_fun calc_fun, int* cid1, int* cid2);
 
 
 //---------object distance metrics---------

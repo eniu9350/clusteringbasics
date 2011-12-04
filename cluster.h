@@ -6,15 +6,15 @@
 
 #define NUM_INIT_CLUSTER_SIZE 50
 #define NUM_CLUSTER_SIZE_INCREMENT 50
-#define NUM_MAX_CLUSTER_SIZE 1000
+#define NUM_MAX_CLUSTER_SIZE 200*1000
 
 #define NUM_INIT_CLUSTERLIST_SIZE 50
 #define NUM_CLUSTERLIST_SIZE_INCREMENT 50
-#define NUM_MAX_CLUSTERLIST_SIZE 500
+#define NUM_MAX_CLUSTERLIST_SIZE 200*1000
 
-#define NUM_INIT_CLUSTERLISTLIST_SIZE 10
-#define NUM_CLUSTERLISTLIST_SIZE_INCREMENT 10
-#define NUM_MAX_CLUSTERLISTLIST_SIZE 100
+#define NUM_INIT_CLUSTERLISTLIST_SIZE 50
+#define NUM_CLUSTERLISTLIST_SIZE_INCREMENT 50
+#define NUM_MAX_CLUSTERLISTLIST_SIZE 200*1000
 
 #include <alisttpl.h>
 
@@ -31,6 +31,8 @@ typedef struct _object_space	{
 	int dim;
 	cluster* all;
 } object_space;
+object_space* obj_create_obj_space(int dim);
+
 /*
 typedef uint OBJID;
 
