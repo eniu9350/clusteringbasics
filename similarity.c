@@ -55,22 +55,22 @@ sim_matrix* calc_cluster_sim_matrix(object_space* space, cluster_list* cl, clust
 {
 	int j,k;
 	sim_matrix* simm;
-	printf("ccsm step 0\n");
+	//printf("ccsm step 0\n");
 	simm = create_sim_matrix(cl->size);
-	printf("ccsm step 1\n");
+	//printf("ccsm step 1\n");
 	for(j=1;j<cl->size;j++)	{
 		for(k=0;k<j;k++)	{
 			simm->matrix[k][j] = (*((cluster_sim_calc_fun)calc_fun))(space, cl->list[k], cl->list[j], 0);
 		}
 		simm->matrix[j][j] = 1;	//mmm: right?
 	}
-	printf("ccsm step 2\n");
+	//printf("ccsm step 2\n");
 	for(j=1;j<cl->size;j++)	{	//the matrix is symmetric
 		for(k=0;k<j;k++)	{
 			simm->matrix[j][k] = simm->matrix[k][j];
 		}
 	}
-	printf("ccsm step 3\n");
+	//printf("ccsm step 3\n");
 
 	return 0;
 }
@@ -90,12 +90,22 @@ int find_most_sim_cluster(object_space* space, cluster_list* cl, cluster_sim_cal
 	for(i=0;i<cl->size;i++)	{
 		for(j=0;j<i;j++)	{
 			sim =  (*calc_fun)(space, cl->list[i], cl->list[j], 0);
+#if 1
+		//if(i%1000==1)	{
+	//		printf("fmsc, %d/%d, sim=%f\n", i, cl->size, sim);
+		//}
+#endif
 			if(sim>maxsim)	{
 				maxsim = sim;
 				imax = i;
 				jmax = j;
 			}
 		}
+#if 1
+		//if(i%1000==1)	{
+	//		printf("fmsc, %d/%d, maxsim=%f\n", i, cl->size, maxsim);
+		//}
+#endif
 	}
 
 	*cid1 = imax;
@@ -111,10 +121,11 @@ int find_most_sim_cluster(object_space* space, cluster_list* cl, cluster_sim_cal
 double csim_nearest_nb(object_space* space, cluster* c1, cluster* c2, double threshold)
 {
 	int i,j;
-	double min;
+	double max;
 	double osim;
+	//printf("cnn, threshold=%f\n", threshold);
 	if(c1->size==0 || c2->size==0)	{
-		printf("csim_nearest_nb: c1 or c2 size == 0\n");
+		//printf("csim_nearest_nb: c1 or c2 size == 0\n");
 		return 0;
 	}
 
@@ -122,20 +133,24 @@ double csim_nearest_nb(object_space* space, cluster* c1, cluster* c2, double thr
 		threshold = OBJECT_SIMILARITY_MIN;
 	}
 
-	min = osim_naive(space, c1->list[0], c2->list[0]);
+	max = osim_naive(space, c1->list[0], c2->list[0]);
 	for(i=0;i<c1->size;i++)	{
 		for(j=0;j<c2->size;j++)	{
+			//printf("c1o attn = %d, c2o attn = %d\n", c1->list[i]->atts->size, c2->list[i]->atts->size);
 			osim = osim_naive(space, c1->list[i], c2->list[j]);
-			if(osim<min)	{
-				min = osim;
+			//printf("cnn, osim=%f\n", osim);
+			if(osim>max)	{
+				max = osim;
+				/*
 				if(min<threshold)	{
 					return threshold;
 				}
+				*/
 			}
 		}
 	}
 
-	return min;
+	return max;
 }
 
 
@@ -163,18 +178,34 @@ double odis_euclidean(object_space* space, object* o1, object* o2)
 	int i;
 	double v1, v2;
 	object_att *att1, *att2;
+
+//			printf("o1 attn = %d, o2 attn = %d\n", o1->atts->size, o2->atts->size);
+
 	for(i=0;i<space->dim;i++)	{
-		printf("oe, calc dim %d\n", i);
+		//printf("oe, calc dim %d\n", i);
 		att1 = obj_get_att(o1, i+1);	//i+1 equals tid
 		att2 = obj_get_att(o2, i+1);	//i+1 equals tid
-		printf("att1 and att2 returned\n");
-		printf("att1=%d, att2=%d\n",att1, att2);
+		//printf("att1 and att2 returned\n");
+		//printf("att1=%d, att2=%d\n",att1, att2);
 
 		v1 = att1!=0?att1->v:0.0;
-		printf("v1=%f\n",v1);
+		if(att1!=0)	{
+		//printf("att1->v=%f\n", att1->v);
+		}
+		//printf("v1=%f\n",v1);
 		v2 = att2!=0?att2->v:0.0;
-		printf("v2=%f\n",v2);
+		if(att2!=0)	{
+		//printf("att2->v=%f\n", att2->v);
+		}
+		//printf("v2=%f\n",v2);
 		sum += (v1-v2)*(v1-v2);
+		if(att1&&att2)	{
+			//printf("o1 id = %d, o2 id = %d\n", o1->id, o2->id);
+			//printf("att1 id = %d, att2 id = %d\n", att1->id, att2->id);
+			//printf("att1 v = %f, att2 v = %f\n\n", att1->v, att2->v);
+			//printf("sum = %f\n", sum);
+			//printf("sqrt sum = %f\n", sqrt(sum));
+		}		
 	}
 
 	return sqrt(sum);
