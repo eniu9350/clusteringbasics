@@ -7,6 +7,5 @@
 #include "object.h"
 #include "similarity.h"
 
-int hier_clustering(cluster_list* clist, object_list* objs, cluster_sim_calc_fun simfun);
-
+cluster_list_list* hier_clustering(object_space* space, cluster_sim_calc_fun simfun);
 #endif

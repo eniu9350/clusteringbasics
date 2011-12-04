@@ -1,6 +1,6 @@
 #include "hierarchical.h"
 
-int hier_clustering(cluster_list* clist, object_list* objs, cluster_sim_calc_fun simfun)
+cluster_list_list* hier_clustering(object_space* space, cluster_sim_calc_fun simfun)
 {
 	int i,j,k;
 	//int n;	//current cluster list size
@@ -11,22 +11,29 @@ int hier_clustering(cluster_list* clist, object_list* objs, cluster_sim_calc_fun
 	int rowmax;
 	int colmax;
 	double smax;
+	sim_matrix* simm;
 	//init new !!!
 	//	n = nobj;
 
 	cl = create_cluster_list();
-	for(i=0;i<objs->size;i++)	{
-		c = create_cluster(objs);
-		add_object(c, objs->list[i].id);
+	for(i=0;i<space->all->size;i++)	{
+		c = create_cluster();
+//		add_object(c, objs->list[i].id);
+		add_object(c, space->all->list[i]);
 		add_cluster(cl, c);
 	}
 
-	for(i=0;i<objs->size-1;i++)	{
+//	for(i=0;i<space->all->size;i++)	{
+	while(1)	{
+		if(cl->size==1)	{
+			break;
+		}
 		//1. calc similarity
-		sim_matrix* simm = create_sim_matrix(cl->size, simfun);
+	//	sim_matrix* simm = create_sim_matrix(cl->size, simfun);
+	/*
 		for(j=1;j<cl->size;j++)	{
 			for(k=0;k<j;k++)	{
-				simm->matrix[k][j] = (*((cluster_sim_calc_fun)simm->calc_fun))(cl->plist[k], cl->plist[j], 0);
+				simm->matrix[k][j] = (*((cluster_sim_calc_fun)simm->calc_fun))(space, cl->list[k], cl->list[j], 0);
 			}
 		}
 		for(j=1;j<cl->size;j++)	{	//the matrix is symmetric
@@ -34,6 +41,8 @@ int hier_clustering(cluster_list* clist, object_list* objs, cluster_sim_calc_fun
 				simm->matrix[j][k] = simm->matrix[k][j];
 			}
 		}
+		*/
+		simm = calc_cluster_sim_matrix(space, cl, simfun);
 
 		//2. select and merge
 		rowmax = 0;
@@ -49,7 +58,9 @@ int hier_clustering(cluster_list* clist, object_list* objs, cluster_sim_calc_fun
 			}
 		}
 
-		merge_cluster(cl->plist[j], cl->plist[k]);
+		destroy_sim_matrix(simm);
+
+		merge_cluster(cl->list[j], cl->list[k]);
 
 		remove_cluster(cl, k);
 
@@ -57,4 +68,6 @@ int hier_clustering(cluster_list* clist, object_list* objs, cluster_sim_calc_fun
 		cltosave = clone_cluster_list(cl);
 		add_cluster_list(result, cltosave);
 	}
+
+	return result;
 }

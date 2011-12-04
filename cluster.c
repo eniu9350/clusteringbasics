@@ -2,7 +2,13 @@
 
 #include <stdio.h>
 
+alisttpl_struct_impl(object);
+alisttpl_struct_impl(cluster);
+alisttpl_struct_impl(cluster_list);
+
+
 /* ----- struct cluster ----------------- */
+/*
 cluster* create_cluster(object_list* all_objs)
 {
 	cluster* c = (cluster*)malloc(sizeof(cluster));
@@ -30,16 +36,22 @@ void destroy_cluster(cluster* c)
 	free(c->objids);
 	free(c);
 }
-
+*/
 
 cluster* clone_cluster(cluster* c)
 {
-	cluster* cclone = create_cluster_by_capacity(c->all_objs, c->capacity);
-	memcpy((void*)cclone->objids, (void*)c->objids, c->size*sizeof(OBJID));
-	cclone->size = c->size;
+	int i;
+	cluster* cclone = create_object_alist();	//mmm:create by capacity
+	for(i=0;i<c->size;i++)	{
+		add_object(cclone, c->list[i]);
+	}
+	
+	//memcpy((void*)cclone->objids, (void*)c->objids, c->size*sizeof(OBJID));
+	//cclone->size = c->size;
+	return cclone;
 }
 
-
+/*
 int add_object(cluster* c, int objid)
 {
 	if(c->size>c->capacity)	{
@@ -102,6 +114,7 @@ int expand_cluster(cluster* c)
 	}
 	return 0;
 }
+*/
 
 
 int merge_cluster(cluster* c, cluster* toadd)
@@ -115,13 +128,14 @@ int merge_cluster(cluster* c, cluster* toadd)
 		}
 	}
 	for(i=0;i<toadd->size;i++)	{
-		add_object(c, toadd->objids[i]);
+		add_object(c, toadd->list[i]);
 	}
 	return 0;
 }
 
 
 /* ----- struct cluster_list ----------------- */
+/*
 cluster_list* create_cluster_list()	
 {
 	cluster_list* cl;
@@ -144,21 +158,22 @@ cluster_list* create_cluster_list_by_capacity(int initcapacity)
 }
 
 //destroy_cluster_list
-
+*/
 
 cluster_list* clone_cluster_list(cluster_list* cl)
 {
 	int i;
 	cluster_list* clclone;
 	cluster* c;
-	clclone = create_cluster_list_by_capacity(cl->capacity);
+	clclone = create_cluster_list();//create by capacity will be more efficient
 	for(i=0;i<cl->size;i++)	{
-		c = clone_cluster(cl->plist[i]);
+		c = clone_cluster(cl->list[i]);
 		add_cluster(clclone, c);
 	}
 	return clclone;
 }
 
+/*
 
 int expand_cluster_list(cluster_list* cl)
 {
@@ -223,8 +238,10 @@ int remove_cluster(cluster_list* cl, int n)
 
 	return 0;
 }
+*/
 
 /* ----- struct cluster_list_list ----------------- */
+/*
 cluster_list_list* create_cluster_list_list()
 {
 	cluster_list_list* cll = (cluster_list_list*)malloc(sizeof(cluster_list_list));
@@ -271,5 +288,5 @@ int expand_cluster_list_list(cluster_list_list* cll)
 
 	return 0;
 }
-
+*/
 

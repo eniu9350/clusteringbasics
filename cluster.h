@@ -15,6 +15,23 @@
 #define NUM_INIT_CLUSTERLISTLIST_SIZE 10
 #define NUM_CLUSTERLISTLIST_SIZE_INCREMENT 10
 #define NUM_MAX_CLUSTERLISTLIST_SIZE 100
+
+#include <alisttpl.h>
+
+alisttpl_struct(object);
+typedef object_alist cluster;
+
+alisttpl_struct(cluster);
+typedef cluster_alist cluster_list;
+
+alisttpl_struct(cluster_list);
+typedef cluster_list_alist cluster_list_list;
+
+typedef struct _object_space	{
+	int dim;
+	cluster* all;
+} object_space;
+/*
 typedef uint OBJID;
 
 typedef struct cluster	{
@@ -56,5 +73,6 @@ int remove_cluster(cluster_list* cl, int n);
 cluster_list_list* create_cluster_list_list();	
 int add_cluster_list(cluster_list_list* cll, cluster_list* cl);
 int expand_cluster_list_list(cluster_list_list* cll);
+*/
 
 #endif
