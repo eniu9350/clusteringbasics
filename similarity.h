@@ -53,6 +53,6 @@ void odis_euclidean(object_space* space, object* o1, object* o2, double* thresho
 void osim_naive(object_space* space, object* o1, object* o2, double* threshold, complex_result* sim);
 
 //---------cluster sim metrics---------
-double csim_nearest_nb(object_space* space, cluster* c1, cluster* c2, double threshold);
+void csim_nearest_nb(object_space* space, cluster* c1, cluster* c2, double threshold);
 
 #endif

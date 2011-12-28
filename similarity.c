@@ -132,7 +132,7 @@ int find_most_sim_cluster(object_space* space, cluster_list* cl, cluster_sim_cal
 
 //sim = 0 - distance of nearest neighbour
 //threshold: 0 for none, other: if sim less than it, return threshold
-double csim_nearest_nb(object_space* space, cluster* c1, cluster* c2, double threshold)
+void csim_nearest_nb(object_space* space, cluster* c1, cluster* c2, double threshold)
 {
 	int i,j;
 	double max;
@@ -166,7 +166,6 @@ double csim_nearest_nb(object_space* space, cluster* c1, cluster* c2, double thr
 		}
 	}
 
-	return max;
 }
 
 
