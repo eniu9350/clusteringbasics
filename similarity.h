@@ -6,9 +6,14 @@
 #include "object.h"
 #include "cluster.h"
 
+typedef struct _complex_result {
+	__u8 flag;	//true if better sim value obtained,false if no better and the value will not return
+	double value;
+}complex_result;
+
 //typedef void* sim_calc_fun;
-typedef double (*object_sim_calc_fun)(object_space* space, object* o1, object* o2);
-typedef double (*cluster_sim_calc_fun)(object_space* space, cluster* c1, cluster* c2, double threshold);
+typedef (*object_sim_calc_fun)(object_space* space, object* o1, object* o2, double* threshold, complex_result* sim);
+typedef (*cluster_sim_calc_fun)(object_space* space, cluster* c1, cluster* c2, double* threshold, complex_result* sim);
 /*
 typedef struct _obj_sim_matrix	{
 	double matrix[NUM_MAX_CLUSTER_SIZE][NUM_MAX_CLUSTER_SIZE];
@@ -32,20 +37,20 @@ sim_matrix* create_sim_matrix(int size);
 int destroy_sim_matrix(sim_matrix* simm);
 
 //---------object sim MATRIX calc-----------------
-sim_matrix* calc_obj_sim_matrix(object_space* space, cluster* c, object_sim_calc_fun calc_fun);
+//sim_matrix* calc_obj_sim_matrix(object_space* space, cluster* c, object_sim_calc_fun calc_fun);
 //---------cluster sim MATRIX calc-----------------
-sim_matrix* calc_cluster_sim_matrix(object_space* space, cluster_list* cl, cluster_sim_calc_fun calc_fun);
+//sim_matrix* calc_cluster_sim_matrix(object_space* space, cluster_list* cl, cluster_sim_calc_fun calc_fun);
 
 //---------find most similar clusters--------------
-int find_most_sim_cluster(object_space* space, cluster_list* cl, cluster_sim_calc_fun calc_fun, int* cid1, int* cid2);
+//int find_most_sim_cluster(object_space* space, cluster_list* cl, cluster_sim_calc_fun calc_fun, int* cid1, int* cid2);
 
 
 //---------object distance metrics---------
-double odis_euclidean(object_space* space, object* ol, object* o2);
+void odis_euclidean(object_space* space, object* o1, object* o2, double* threshold, complex_result* dis);
 
 //---------object sim metrics---------
 #define OBJECT_SIMILARITY_MIN -999999
-double osim_naive(object_space* space, object* o1, object* o2);
+void osim_naive(object_space* space, object* o1, object* o2, double* threshold, complex_result* sim);
 
 //---------cluster sim metrics---------
 double csim_nearest_nb(object_space* space, cluster* c1, cluster* c2, double threshold);

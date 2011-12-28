@@ -32,6 +32,7 @@ int destroy_sim_matrix(sim_matrix* simm)
 	free(simm);
 }
 //---------object sim MATRIX calc-----------------
+/*
 sim_matrix* calc_obj_sim_matrix(object_space* space, cluster*c, object_sim_calc_fun calc_fun)
 {
 	int i,j;
@@ -49,8 +50,10 @@ sim_matrix* calc_obj_sim_matrix(object_space* space, cluster*c, object_sim_calc_
 
 	return simm;
 }
+*/
 
 //---------cluster sim MATRIX calc-----------------
+/*
 sim_matrix* calc_cluster_sim_matrix(object_space* space, cluster_list* cl, cluster_sim_calc_fun calc_fun)
 //int calc_cluster_sim_matrix(sim_matrix* s, cluster_list* cl)
 {
@@ -75,8 +78,10 @@ sim_matrix* calc_cluster_sim_matrix(object_space* space, cluster_list* cl, clust
 
 	return 0;
 }
+*/
 
 //---------find most similar clusters--------------
+/*
 int find_most_sim_cluster(object_space* space, cluster_list* cl, cluster_sim_calc_fun calc_fun, int* cid1, int* cid2)
 {
 	double maxsim;
@@ -114,6 +119,7 @@ int find_most_sim_cluster(object_space* space, cluster_list* cl, cluster_sim_cal
 
 	return 0;
 }
+*/
 
 //---------cluster sim metrics---------
 
@@ -123,7 +129,7 @@ double csim_nearest_nb(object_space* space, cluster* c1, cluster* c2, double thr
 {
 	int i,j;
 	double max;
-	double osim;
+	//double osim;
 	//printf("cnn, threshold=%f\n", threshold);
 	if(c1->size==0 || c2->size==0)	{
 		//printf("csim_nearest_nb: c1 or c2 size == 0\n");
@@ -133,16 +139,17 @@ double csim_nearest_nb(object_space* space, cluster* c1, cluster* c2, double thr
 	if(threshold==0)	{
 		threshold = OBJECT_SIMILARITY_MIN;
 	}
-
-	max = osim_naive(space, c1->list[0], c2->list[0]);
+	
+	complex_result sim;
+	osim_naive(space, c1->list[0], c2->list[0], 0, &sim);
 	//printf("c1size=%d, c2size=%d\n",c1->size,c2->size);
 	for(i=0;i<c1->size;i++)	{
 		for(j=0;j<c2->size;j++)	{
 			//printf("c1o attn = %d, c2o attn = %d\n", c1->list[i]->atts->size, c2->list[i]->atts->size);
-			osim = osim_naive(space, c1->list[i], c2->list[j]);
+			osim_naive(space, c1->list[i], c2->list[j], &max, &sim);
 			//printf("cnn, osim=%f\n", osim);
-			if(osim>max)	{
-				max = osim;
+			if(sim.flag)	{
+				max = sim.value;
 				/*
 				if(min<threshold)	{
 					return threshold;
@@ -157,31 +164,73 @@ double csim_nearest_nb(object_space* space, cluster* c1, cluster* c2, double thr
 
 
 //---------object sim metrics---------
-double osim_naive(object_space* space, object* o1, object* o2)
+void osim_naive(object_space* space, object* o1, object* o2, double* threshold, complex_result* sim)
 {
-	return 0 - odis_euclidean(space, o1, o2);
+	complex_result dis;
+	double t;
+	if(threshold)	{
+		t = 0-(*threshold);
+		odis_euclidean(space, o1, o2, &t, &dis);
+		if(!dis.flag)	{
+			sim->flag = 0;
+		}
+		else	{
+			sim->flag = 1;
+			sim->value = 0-dis.value;
+		}
+	}
+	else	{
+		odis_euclidean(space, o1, o2, 0, &dis);
+		sim->flag = 1;
+		sim->value = 0-dis.value;
+	}
 }
 
 //---------object distance metrics---------
-double odis_euclidean(object_space* space, object* o1, object* o2)
+void odis_euclidean(object_space* space, object* o1, object* o2, double* threshold, complex_result* dis)
 {
 	double sum = 0.0;
 	double result;
 	int i;
 	double v1, v2;
 	object_att *att1, *att2;
+	double tmp;
 
+	if(threshold==0)	{
+		for(i=0;i<space->dim;i++)	{
+			att1 = obj_get_att(o1, i+1);	//i+1 equals tid
+			att2 = obj_get_att(o2, i+1);	//i+1 equals tid
 
-	for(i=0;i<space->dim;i++)	{
+			v1 = att1!=0?att1->v:0.0;
+			v2 = att2!=0?att2->v:0.0;
+
+			sum += (v1-v2)*(v1-v2);
+			dis->flag = 1;
+			dis->value = sqrt(sum);
+			return;
+		}
+	}
+	else	{
 		att1 = obj_get_att(o1, i+1);	//i+1 equals tid
 		att2 = obj_get_att(o2, i+1);	//i+1 equals tid
 
 		v1 = att1!=0?att1->v:0.0;
 		v2 = att2!=0?att2->v:0.0;
-		
-		sum += (v1-v2)*(v1-v2);
-				
+
+		tmp = (v1-v2)*(v1-v2);
+		if(tmp>*threshold)	{
+			dis->flag = 0;
+			return;
+		}
+		else	{
+			sum += tmp;
+			if(sum>*threshold)	{
+				dis->flag = 0;
+				return;
+			}
+		}
+		dis->flag = 1;
+		dis->value = sqrt(sum);
 	}
 
-	return sqrt(sum);
 }
