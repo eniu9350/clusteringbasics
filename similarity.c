@@ -214,31 +214,33 @@ void odis_euclidean(object_space* space, object* o1, object* o2, double* thresho
 			v2 = att2!=0?att2->v:0.0;
 
 			sum += (v1-v2)*(v1-v2);
-			dis->flag = 1;
-			dis->value = sqrt(sum);
-			return;
 		}
+		dis->flag = 1;
+		dis->value = sqrt(sum);
+		return;
 	}
 	else	{
-		att1 = obj_get_att(o1, i+1);	//i+1 equals tid
-		att2 = obj_get_att(o2, i+1);	//i+1 equals tid
+		for(i=0;i<space->dim;i++)	{
+			att1 = obj_get_att(o1, i+1);	//i+1 equals tid
+			att2 = obj_get_att(o2, i+1);	//i+1 equals tid
 
-		v1 = att1!=0?att1->v:0.0;
-		v2 = att2!=0?att2->v:0.0;
+			v1 = att1!=0?att1->v:0.0;
+			v2 = att2!=0?att2->v:0.0;
 
-		tmp = (v1-v2)*(v1-v2);
-		//printf("tmp=%f, thresh=%f\n", tmp, *threshold);
-		if(tmp>*threshold)	{
-			printf("factorgtthreshold!\n");
-			dis->flag = 0;
-			return;
-		}
-		else	{
-			sum += tmp;
-			if(sum>*threshold)	{
-				printf("sumgtthreshold!\n");
+			tmp = (v1-v2)*(v1-v2);
+			//printf("tmp=%f, thresh=%f\n", tmp, *threshold);
+			if(tmp>*threshold)	{
+				printf("factorgtthreshold!\n");
 				dis->flag = 0;
 				return;
+			}
+			else	{
+				sum += tmp;
+				if(sum>*threshold)	{
+					printf("sumgtthreshold!\n");
+					dis->flag = 0;
+					return;
+				}
 			}
 		}
 		dis->flag = 1;
