@@ -81,13 +81,14 @@ sim_matrix* calc_cluster_sim_matrix(object_space* space, cluster_list* cl, clust
 */
 
 //---------find most similar clusters--------------
-/*
+
 int find_most_sim_cluster(object_space* space, cluster_list* cl, cluster_sim_calc_fun calc_fun, int* cid1, int* cid2)
 {
 	double maxsim;
-	double sim;
+	//double sim;
 	int i,j;
 	int imax, jmax;
+	complex_result sim;
 
 	maxsim = -999999;
 	imax = 0;
@@ -95,21 +96,27 @@ int find_most_sim_cluster(object_space* space, cluster_list* cl, cluster_sim_cal
 
 	for(i=0;i<cl->size;i++)	{
 		for(j=0;j<i;j++)	{
-			sim =  (*calc_fun)(space, cl->list[i], cl->list[j], 0);
+			if(i==0&j==0)	{	//first time
+				(*calc_fun)(space, cl->list[i], cl->list[j], 0, &sim);
+			}
+			else	{
+				(*calc_fun)(space, cl->list[i], cl->list[j], &maxsim, &sim);
+			}
 #if 1
-		if(i%10==1)	{
-			printf("fmsc, %d/%d, sim=%f (dim=%d), maxsim=%f(%d,%d)\n", i, cl->size, sim, space->dim, maxsim, imax, jmax);
-		}
+			if(i%10==1)	{
+				printf("fmsc, %d/%d, sim=%f (dim=%d), maxsim=%f(%d,%d)\n", i, cl->size, sim.value, space->dim, maxsim, imax, jmax);
+				sleep(10);
+			}
 #endif
-			if(sim>maxsim)	{
-				maxsim = sim;
+			if(sim.flag)	{
+				maxsim = sim.value;
 				imax = i;
 				jmax = j;
 			}
 		}
 #if 1
 		//if(i%1000==1)	{
-	//		printf("fmsc, %d/%d, maxsim=%f\n", i, cl->size, maxsim);
+		//		printf("fmsc, %d/%d, maxsim=%f\n", i, cl->size, maxsim);
 		//}
 #endif
 	}
@@ -119,7 +126,7 @@ int find_most_sim_cluster(object_space* space, cluster_list* cl, cluster_sim_cal
 
 	return 0;
 }
-*/
+
 
 //---------cluster sim metrics---------
 
@@ -139,7 +146,7 @@ double csim_nearest_nb(object_space* space, cluster* c1, cluster* c2, double thr
 	if(threshold==0)	{
 		threshold = OBJECT_SIMILARITY_MIN;
 	}
-	
+
 	complex_result sim;
 	osim_naive(space, c1->list[0], c2->list[0], 0, &sim);
 	//printf("c1size=%d, c2size=%d\n",c1->size,c2->size);
@@ -151,10 +158,10 @@ double csim_nearest_nb(object_space* space, cluster* c1, cluster* c2, double thr
 			if(sim.flag)	{
 				max = sim.value;
 				/*
-				if(min<threshold)	{
-					return threshold;
-				}
-				*/
+					 if(min<threshold)	{
+					 return threshold;
+					 }
+				 */
 			}
 		}
 	}
@@ -173,16 +180,19 @@ void osim_naive(object_space* space, object* o1, object* o2, double* threshold, 
 		odis_euclidean(space, o1, o2, &t, &dis);
 		if(!dis.flag)	{
 			sim->flag = 0;
+			return;
 		}
 		else	{
 			sim->flag = 1;
 			sim->value = 0-dis.value;
+			return;
 		}
 	}
 	else	{
 		odis_euclidean(space, o1, o2, 0, &dis);
 		sim->flag = 1;
 		sim->value = 0-dis.value;
+		return;
 	}
 }
 
@@ -218,13 +228,16 @@ void odis_euclidean(object_space* space, object* o1, object* o2, double* thresho
 		v2 = att2!=0?att2->v:0.0;
 
 		tmp = (v1-v2)*(v1-v2);
+		//printf("tmp=%f, thresh=%f\n", tmp, *threshold);
 		if(tmp>*threshold)	{
+			printf("factorgtthreshold!\n");
 			dis->flag = 0;
 			return;
 		}
 		else	{
 			sum += tmp;
 			if(sum>*threshold)	{
+				printf("sumgtthreshold!\n");
 				dis->flag = 0;
 				return;
 			}
