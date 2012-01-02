@@ -50,6 +50,7 @@ void odis_euclidean(object_space* space, object* o1, object* o2, double* thresho
 
 //---------object sim metrics---------
 #define OBJECT_SIMILARITY_MIN -999999
+#define OBJECT_SIMILARITY_MAX -0.0000001
 void osim_naive(object_space* space, object* o1, object* o2, double* threshold, complex_result* sim);
 
 //---------cluster sim metrics---------
