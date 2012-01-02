@@ -7,7 +7,7 @@ sim_matrix* create_sim_matrix(int size)
 {
 	sim_matrix* s;
 	int i,j;
-	printf("csm size=%d\n", size);
+	//printf("csm size=%d\n", size);
 	if(size>NUM_MAX_CLUSTER_SIZE)	{
 		printf("create_sim_matrix error, size exceed limit!\n");
 		return 0;
@@ -21,7 +21,7 @@ sim_matrix* create_sim_matrix(int size)
 				s->matrix[i][j] = -1;
 			}
 		}
-		printf("csm step 2\n");
+		//printf("csm step 2\n");
 
 		return s;
 	}
@@ -90,38 +90,39 @@ int find_most_sim_cluster(object_space* space, cluster_list* cl, cluster_sim_cal
 	int imax, jmax;
 	complex_result sim;
 
-	printf("imaxaddr=%d\n", &imax);
-	printf("sim=%d\n", &sim);
+//	printf("imaxaddr=%d\n", &imax);
+//	printf("sim=%d\n", &sim);
 
 	maxsim = -999999;
 	imax = 0;
 	jmax = 1;
 
-	printf("imaxaddr=%d\n", &imax);
-	for(i=0;i<cl->size;i++)	{
+//	printf("imaxaddr=%d\n", &imax);
+	for(i=1;i<cl->size;i++)	{
 		for(j=0;j<i;j++)	{
-			printf("fmsc.1 i/csize=%d/%d, j/i=%d/%d\n", i, cl->size, j, i);
+			//printf("fmsc.1 i/j=%d/%d\n", i, j);
 			pint = &i;
-			if(i==0&j==0)	{	//first time
+			if(i==1&&j==0)	{	//first time
 				(*calc_fun)(space, cl->list[i], cl->list[j], 0, &sim);
+				//printf("firsttime\n");
 			}
 			else	{
 				(*calc_fun)(space, cl->list[i], cl->list[j], &maxsim, &sim);
 			}
 #if 1
 			//if(i%10==1)	{
-			printf("fmsc, %d/%d, sim=%f (dim=%d), maxsim=%f(%d,%d)\n", i, cl->size, sim.value, space->dim, maxsim, imax, jmax);
-			//sleep(10);
+				//sleep(10);
 			//}
 #endif
-			printf("fmsc.2, i=%d,j=%d\n", i, j);
+			//printf("fmsc.2, i=%d,j=%d\n", i, j);
 			if(sim.flag)	{
-				printf("new nearest cluster neighbour\n");
+				printf("fmsc, %d/%d, sim=%f (dim=%d), maxsim=%f(%d,%d)\n", i, cl->size, sim.value, space->dim, maxsim, imax, jmax);
+				//printf("new nearest cluster neighbour\n");
 				maxsim = sim.value;
 				imax = i;
 				jmax = j;
 			}
-			printf("fmsc.3 i=%d, j=%d\n", i, j);
+			//printf("fmsc.2 i/j=%d/%d\n\n", i, j);
 		}
 #if 1
 		//if(i%1000==1)	{
@@ -141,66 +142,55 @@ int find_most_sim_cluster(object_space* space, cluster_list* cl, cluster_sim_cal
 
 //sim = 0 - distance of nearest neighbour
 //threshold: 0 for none, other: if sim less than it, return threshold
-void csim_nearest_nb(object_space* space, cluster* c1, cluster* c2, double threshold, complex_result* sim)
+void csim_nearest_nb(object_space* space, cluster* c1, cluster* c2, double* threshold, complex_result* sim)
 {
-	
+
 	int i,j;
 	double max;
-	//double osim;
-	//printf("cnn, threshold=%f\n", threshold);
-	printf("cnn0, pint=%d\n", *pint);
-	printf("sizeof cr struct=%d\n", sizeof(complex_result));
-	printf("sizeof *sim=%d\n", sizeof(*sim));
-	printf("simaddr=%ld\n", sim);
-	sim->value = -0.1;
-	printf("simaddr=%ld\n", sim);
-	printf("iaddr=%ld\n", pint);
-	printf("cnna, pint=%d\n", *pint);
+	int flag = 0; //1 for threshold broken
+	//printf("csim start\n");
+	//printf("cnn0, pint=%d\n", *pint);
+	//printf("sim addr=%ld\n", sim);
+	//sim->value = -0.1;
+	//printf("cnna, pint=%d\n", *pint);
 	if(c1->size==0 || c2->size==0)	{
-		//printf("csim_nearest_nb: c1 or c2 size == 0\n");
 		return;
 	}
 
-	if(threshold==0)	{
-		threshold = OBJECT_SIMILARITY_MIN;
+	if(threshold==0 || *threshold==0)	{
+		max = OBJECT_SIMILARITY_MIN;
+	}
+	else	{
+		max = *threshold;
 	}
 
-	printf("cnnb, pint=%d\n", *pint);
 	complex_result osim;
-	osim_naive(space, c1->list[0], c2->list[0], 0, &osim);
-	//printf("c1size=%d, c2size=%d\n",c1->size,c2->size);
-	printf("cnnc, pint=%d\n", *pint);
+	//osim_naive(space, c1->list[0], c2->list[0], &max, &osim);
+	//printf("osimflag = %d\n", osim.flag);
+	printf("csim, c1size=%d,c2size=%d\n", c1->size, c2->size);
 	for(i=0;i<c1->size;i++)	{
 		for(j=0;j<c2->size;j++)	{
-			printf("cnn.1, i/csize=%d/%d, j/csize=%d/%d\n", i,c1->size,j,c2->size);
-			//printf("c1o attn = %d, c2o attn = %d\n", c1->list[i]->atts->size, c2->list[i]->atts->size);
 			osim_naive(space, c1->list[i], c2->list[j], &max, &osim);
-			//printf("cnn, osim.flag=%d\n", osim.flag);
-			//printf("cnn, osim.value=%f\n", osim.value);
+			printf("csim.osim.flag=%d\n",osim.flag);
 			if(osim.flag)	{
+				flag = 1;
 				max = osim.value;
-				/*
-					 if(min<threshold)	{
-					 return threshold;
-					 }
-				 */
+				//printf("cnn, maxosim=%d\n", osim.value);
 			}
-			printf("cnn.2, i/csize=%d/%d, j/csize=%d/%d\n", i,c1->size,j,c2->size);
 		}
 	}
+	//printf("csim 1\n");
 
-	printf("cnnd, pint=%d\n", *pint);
-	printf("osim----f,v=%d,%f\n", osim.flag,osim.value);
-	printf("sim----f,v=%d,%f\n", sim->flag,sim->value);
-	printf("size of sim=%d\n", sizeof(*sim));
-	printf("size of osim=%d\n", sizeof(osim));
-	printf("size of sim->value=%d\n", sizeof(sim->value));
-	printf("size of osim.value=%d\n", sizeof(osim.value));
-	printf("cnnd_e, pint=%d\n", *pint);
-	sim->flag = osim.flag;
-	//sim->value = osim.value;
-	sim->value = 0.222;
-	printf("cnne, pint=%d\n", *pint);
+	//mmm: vip!!!
+	if(flag)	{
+		sim->flag = 1;
+		sim->value = max;
+	}
+	else	{
+		sim->flag = 0;
+	}
+	printf("csim,flag=%d\n", sim->flag);
+	//printf("csim end\n");
 
 }
 
@@ -210,16 +200,21 @@ void osim_naive(object_space* space, object* o1, object* o2, double* threshold, 
 {
 	complex_result dis;
 	double t;
+	printf("osim start\n");
 	if(threshold)	{
+		printf("th=%f\n", *threshold);
 		t = 0-(*threshold);
 		odis_euclidean(space, o1, o2, &t, &dis);
+		printf("osim, flag=%d\n", dis.flag);
 		if(!dis.flag)	{
 			sim->flag = 0;
+			//printf("osim end(1)\n");
 			return;
 		}
 		else	{
 			sim->flag = 1;
 			sim->value = 0-dis.value;
+			//printf("osim end(2)\n");
 			return;
 		}
 	}
@@ -227,6 +222,7 @@ void osim_naive(object_space* space, object* o1, object* o2, double* threshold, 
 		odis_euclidean(space, o1, o2, 0, &dis);
 		sim->flag = 1;
 		sim->value = 0-dis.value;
+		//printf("osim end(3)\n");
 		return;
 	}
 }
@@ -241,6 +237,8 @@ void odis_euclidean(object_space* space, object* o1, object* o2, double* thresho
 	object_att *att1, *att2;
 	double tmp;
 
+
+	printf("odis, th=%f\n", *threshold);
 	if(threshold==0)	{
 		for(i=0;i<space->dim;i++)	{
 			att1 = obj_get_att(o1, i+1);	//i+1 equals tid
@@ -265,15 +263,13 @@ void odis_euclidean(object_space* space, object* o1, object* o2, double* thresho
 
 			tmp = (v1-v2)*(v1-v2);
 			//printf("tmp=%f, thresh=%f\n", tmp, *threshold);
-			if(tmp>*threshold)	{
-				printf("factorgtthreshold!\n");
+			if(tmp>(*threshold)*(*threshold))	{
 				dis->flag = 0;
 				return;
 			}
 			else	{
 				sum += tmp;
-				if(sum>*threshold)	{
-					printf("sumgtthreshold!\n");
+				if(sum>(*threshold)*(*threshold))	{
 					dis->flag = 0;
 					return;
 				}
