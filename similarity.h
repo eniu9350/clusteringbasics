@@ -7,7 +7,7 @@
 #include "cluster.h"
 
 typedef struct _complex_result {
-	__u8 flag;	//true if better sim value obtained,false if no better and the value will not return
+	unsigned char flag;	//true if better sim value obtained,false if no better and the value will not return
 	double value;
 }complex_result;
 
@@ -53,6 +53,6 @@ void odis_euclidean(object_space* space, object* o1, object* o2, double* thresho
 void osim_naive(object_space* space, object* o1, object* o2, double* threshold, complex_result* sim);
 
 //---------cluster sim metrics---------
-void csim_nearest_nb(object_space* space, cluster* c1, cluster* c2, double threshold);
+void csim_nearest_nb(object_space* space, cluster* c1, cluster* c2, double threshold, complex_result* sim);
 
 #endif

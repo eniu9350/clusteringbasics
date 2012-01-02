@@ -2,7 +2,7 @@
 
 #include <math.h>
 #include <unistd.h>
-
+int* pint;
 sim_matrix* create_sim_matrix(int size)
 {
 	sim_matrix* s;
@@ -33,52 +33,52 @@ int destroy_sim_matrix(sim_matrix* simm)
 }
 //---------object sim MATRIX calc-----------------
 /*
-sim_matrix* calc_obj_sim_matrix(object_space* space, cluster*c, object_sim_calc_fun calc_fun)
-{
-	int i,j;
-	sim_matrix* simm = create_sim_matrix(c->size);
-	for(i=0;i<c->size;i++)	{
-		for(j=0;j<c->size;j++)	{
-			if(j==i)	{
-				simm->matrix[c->list[i]->id][c->list[i]->id] = 1;	//mmm: ok?
-			}
-			else	{
-				simm->matrix[c->list[i]->id][c->list[i]->id] = (*calc_fun)(space, c->list[i], c->list[j]);
-			}
-		}
-	}
+	 sim_matrix* calc_obj_sim_matrix(object_space* space, cluster*c, object_sim_calc_fun calc_fun)
+	 {
+	 int i,j;
+	 sim_matrix* simm = create_sim_matrix(c->size);
+	 for(i=0;i<c->size;i++)	{
+	 for(j=0;j<c->size;j++)	{
+	 if(j==i)	{
+	 simm->matrix[c->list[i]->id][c->list[i]->id] = 1;	//mmm: ok?
+	 }
+	 else	{
+	 simm->matrix[c->list[i]->id][c->list[i]->id] = (*calc_fun)(space, c->list[i], c->list[j]);
+	 }
+	 }
+	 }
 
-	return simm;
-}
-*/
+	 return simm;
+	 }
+ */
 
 //---------cluster sim MATRIX calc-----------------
 /*
-sim_matrix* calc_cluster_sim_matrix(object_space* space, cluster_list* cl, cluster_sim_calc_fun calc_fun)
+	 sim_matrix* calc_cluster_sim_matrix(object_space* space, cluster_list* cl, cluster_sim_calc_fun calc_fun)
 //int calc_cluster_sim_matrix(sim_matrix* s, cluster_list* cl)
 {
-	int j,k;
-	sim_matrix* simm;
-	//printf("ccsm step 0\n");
-	simm = create_sim_matrix(cl->size);
-	//printf("ccsm step 1\n");
-	for(j=1;j<cl->size;j++)	{
-		for(k=0;k<j;k++)	{
-			simm->matrix[k][j] = (*((cluster_sim_calc_fun)calc_fun))(space, cl->list[k], cl->list[j], 0);
-		}
-		simm->matrix[j][j] = 1;	//mmm: right?
-	}
-	//printf("ccsm step 2\n");
-	for(j=1;j<cl->size;j++)	{	//the matrix is symmetric
-		for(k=0;k<j;k++)	{
-			simm->matrix[j][k] = simm->matrix[k][j];
-		}
-	}
-	//printf("ccsm step 3\n");
-
-	return 0;
+int j,k;
+sim_matrix* simm;
+//printf("ccsm step 0\n");
+simm = create_sim_matrix(cl->size);
+//printf("ccsm step 1\n");
+for(j=1;j<cl->size;j++)	{
+for(k=0;k<j;k++)	{
+simm->matrix[k][j] = (*((cluster_sim_calc_fun)calc_fun))(space, cl->list[k], cl->list[j], 0);
 }
-*/
+simm->matrix[j][j] = 1;	//mmm: right?
+}
+//printf("ccsm step 2\n");
+for(j=1;j<cl->size;j++)	{	//the matrix is symmetric
+for(k=0;k<j;k++)	{
+simm->matrix[j][k] = simm->matrix[k][j];
+}
+}
+//printf("ccsm step 3\n");
+
+return 0;
+}
+ */
 
 //---------find most similar clusters--------------
 
@@ -90,12 +90,18 @@ int find_most_sim_cluster(object_space* space, cluster_list* cl, cluster_sim_cal
 	int imax, jmax;
 	complex_result sim;
 
+	printf("imaxaddr=%d\n", &imax);
+	printf("sim=%d\n", &sim);
+
 	maxsim = -999999;
 	imax = 0;
 	jmax = 1;
 
+	printf("imaxaddr=%d\n", &imax);
 	for(i=0;i<cl->size;i++)	{
 		for(j=0;j<i;j++)	{
+			printf("fmsc.1 i/csize=%d/%d, j/i=%d/%d\n", i, cl->size, j, i);
+			pint = &i;
 			if(i==0&j==0)	{	//first time
 				(*calc_fun)(space, cl->list[i], cl->list[j], 0, &sim);
 			}
@@ -103,16 +109,19 @@ int find_most_sim_cluster(object_space* space, cluster_list* cl, cluster_sim_cal
 				(*calc_fun)(space, cl->list[i], cl->list[j], &maxsim, &sim);
 			}
 #if 1
-			if(i%10==1)	{
-				printf("fmsc, %d/%d, sim=%f (dim=%d), maxsim=%f(%d,%d)\n", i, cl->size, sim.value, space->dim, maxsim, imax, jmax);
-				sleep(10);
-			}
+			//if(i%10==1)	{
+			printf("fmsc, %d/%d, sim=%f (dim=%d), maxsim=%f(%d,%d)\n", i, cl->size, sim.value, space->dim, maxsim, imax, jmax);
+			//sleep(10);
+			//}
 #endif
+			printf("fmsc.2, i=%d,j=%d\n", i, j);
 			if(sim.flag)	{
+				printf("new nearest cluster neighbour\n");
 				maxsim = sim.value;
 				imax = i;
 				jmax = j;
 			}
+			printf("fmsc.3 i=%d, j=%d\n", i, j);
 		}
 #if 1
 		//if(i%1000==1)	{
@@ -132,39 +141,66 @@ int find_most_sim_cluster(object_space* space, cluster_list* cl, cluster_sim_cal
 
 //sim = 0 - distance of nearest neighbour
 //threshold: 0 for none, other: if sim less than it, return threshold
-void csim_nearest_nb(object_space* space, cluster* c1, cluster* c2, double threshold)
+void csim_nearest_nb(object_space* space, cluster* c1, cluster* c2, double threshold, complex_result* sim)
 {
+	
 	int i,j;
 	double max;
 	//double osim;
 	//printf("cnn, threshold=%f\n", threshold);
+	printf("cnn0, pint=%d\n", *pint);
+	printf("sizeof cr struct=%d\n", sizeof(complex_result));
+	printf("sizeof *sim=%d\n", sizeof(*sim));
+	printf("simaddr=%ld\n", sim);
+	sim->value = -0.1;
+	printf("simaddr=%ld\n", sim);
+	printf("iaddr=%ld\n", pint);
+	printf("cnna, pint=%d\n", *pint);
 	if(c1->size==0 || c2->size==0)	{
 		//printf("csim_nearest_nb: c1 or c2 size == 0\n");
-		return 0;
+		return;
 	}
 
 	if(threshold==0)	{
 		threshold = OBJECT_SIMILARITY_MIN;
 	}
 
-	complex_result sim;
-	osim_naive(space, c1->list[0], c2->list[0], 0, &sim);
+	printf("cnnb, pint=%d\n", *pint);
+	complex_result osim;
+	osim_naive(space, c1->list[0], c2->list[0], 0, &osim);
 	//printf("c1size=%d, c2size=%d\n",c1->size,c2->size);
+	printf("cnnc, pint=%d\n", *pint);
 	for(i=0;i<c1->size;i++)	{
 		for(j=0;j<c2->size;j++)	{
+			printf("cnn.1, i/csize=%d/%d, j/csize=%d/%d\n", i,c1->size,j,c2->size);
 			//printf("c1o attn = %d, c2o attn = %d\n", c1->list[i]->atts->size, c2->list[i]->atts->size);
-			osim_naive(space, c1->list[i], c2->list[j], &max, &sim);
-			//printf("cnn, osim=%f\n", osim);
-			if(sim.flag)	{
-				max = sim.value;
+			osim_naive(space, c1->list[i], c2->list[j], &max, &osim);
+			//printf("cnn, osim.flag=%d\n", osim.flag);
+			//printf("cnn, osim.value=%f\n", osim.value);
+			if(osim.flag)	{
+				max = osim.value;
 				/*
 					 if(min<threshold)	{
 					 return threshold;
 					 }
 				 */
 			}
+			printf("cnn.2, i/csize=%d/%d, j/csize=%d/%d\n", i,c1->size,j,c2->size);
 		}
 	}
+
+	printf("cnnd, pint=%d\n", *pint);
+	printf("osim----f,v=%d,%f\n", osim.flag,osim.value);
+	printf("sim----f,v=%d,%f\n", sim->flag,sim->value);
+	printf("size of sim=%d\n", sizeof(*sim));
+	printf("size of osim=%d\n", sizeof(osim));
+	printf("size of sim->value=%d\n", sizeof(sim->value));
+	printf("size of osim.value=%d\n", sizeof(osim.value));
+	printf("cnnd_e, pint=%d\n", *pint);
+	sim->flag = osim.flag;
+	//sim->value = osim.value;
+	sim->value = 0.222;
+	printf("cnne, pint=%d\n", *pint);
 
 }
 
