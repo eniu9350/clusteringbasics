@@ -83,6 +83,8 @@ cluster_list_list* hier_clustering(object_space* space, cluster_sim_calc_fun sim
 		//save current cluster to result
 		cltosave = clone_cluster_list(cl);
 		add_cluster_list(result, cltosave);
+
+		i++;
 	}
 
 	return result;
