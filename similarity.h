@@ -42,7 +42,7 @@ int destroy_sim_matrix(sim_matrix* simm);
 //sim_matrix* calc_cluster_sim_matrix(object_space* space, cluster_list* cl, cluster_sim_calc_fun calc_fun);
 
 //---------find most similar clusters--------------
-//int find_most_sim_cluster(object_space* space, cluster_list* cl, cluster_sim_calc_fun calc_fun, int* cid1, int* cid2);
+int find_most_sim_cluster(object_space* space, cluster_list* cl, cluster_sim_calc_fun calc_fun, int* cid1, int* cid2);
 
 
 //---------object distance metrics---------
