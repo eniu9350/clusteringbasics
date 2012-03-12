@@ -209,6 +209,7 @@ void csim_nearest_nb(object_space* space, cluster* c1, cluster* c2, double* thre
 
 
 //---------object sim metrics---------
+//sim flag --- 0. sim<threshold; 1/2: sim>threshold,so sim value is valid
 void osim_naive(object_space* space, object* o1, object* o2, double* threshold, complex_result* sim)
 {
 	complex_result dis;
@@ -219,12 +220,12 @@ void osim_naive(object_space* space, object* o1, object* o2, double* threshold, 
 		t = 0-(*threshold);
 		odis_euclidean(space, o1, o2, &t, &dis);
 		//printf("osim, flag=%d\n", dis.flag);
-		if(!dis.flag)	{
+		if(!dis.flag)	{	//dis>threshold
 			sim->flag = 0;
 			//printf("osim end(1)\n");
 			return;
 		}
-		else	{
+		else	{	//dis<threshold (may > or < mindistance
 			sim->flag = dis.flag;
 			sim->value = 0-dis.value;
 			//printf("osim end(2)\n");
@@ -241,6 +242,9 @@ void osim_naive(object_space* space, object* o1, object* o2, double* threshold, 
 }
 
 //---------object distance metrics---------
+//dis flag --- 
+//if threshold!=0: 0.dis>threshold; 1.MIN_DISTANCE<dis<threshold; 2.dis<MIN_DISTANCE
+//if threshold==0: always 1! right?
 void odis_euclidean(object_space* space, object* o1, object* o2, double* threshold, complex_result* dis)
 {
 	double sum = 0.0;
